@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="gelap">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Harga Kuota — Warung</title>
+<meta name="theme-color" content="#0f1220">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+  :root, html[data-theme="gelap"]{
+    --bg:#0f1220; --card:#1a1e30; --card2:#222741; --text:#f2f3fa; --muted:#9aa1bd;
+    --accent:#ffb340; --line:#2e3352; --head1:#171b30; --head2:#12152a; --foot:#12152af2;
+    --chipact:#2c2413; --danger:#ff6b6b; --ok:#57d38c; --modal:#1d2138;
+  }
+  html[data-theme="pastel"]{
+    --bg:#f4e7d3; --card:#fdf0da; --card2:#fbe7c6; --text:#40364f; --muted:#8a7a94;
+    --accent:#e07b39; --line:#e8cfa9; --head1:#fbeed3; --head2:#f7e3c2; --foot:#f7e3c2f5;
+    --chipact:#fbd9a7; --danger:#d64545; --ok:#2e9e62; --modal:#fdf0da;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); transition:background .25s,color .25s}
+  header{position:sticky; top:0; z-index:10; background:linear-gradient(180deg,var(--head1),var(--head2)); padding:16px 16px 12px; border-bottom:1px solid var(--line)}
+  .toprow{display:flex; justify-content:space-between; align-items:flex-start; gap:10px}
+  h1{margin:0; font-size:22px; letter-spacing:.3px}
+  h1 .em{color:var(--accent)}
+  .sub{color:var(--muted); font-size:13px; margin-top:4px}
+  .iconbtn{flex:0 0 auto; font-size:20px; padding:9px 13px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--text); cursor:pointer}
+  .toolbar{display:flex; gap:8px; margin-top:12px}
+  .toolbar button{flex:1; padding:11px 8px; border-radius:12px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font-size:14.5px; font-weight:700; cursor:pointer}
+  .toolbar button.on{border-color:var(--accent); color:var(--accent); background:var(--chipact)}
+  .search{margin-top:10px; display:flex; gap:8px}
+  .search input{flex:1; min-width:0; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:16px; outline:none; pointer-events:auto; user-select:text; -webkit-user-select:text}
+  .search input:focus{border-color:var(--accent)}
+  .search select{padding:12px 8px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:14px; outline:none; max-width:42%}
+  .chips{display:flex; gap:8px; overflow-x:auto; padding:12px 16px 4px; scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto; padding:9px 16px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--text); font-size:15px; font-weight:600; cursor:pointer}
+  .chip.active{border-color:var(--accent); background:var(--chipact); color:var(--accent)}
+  main{padding:8px 16px 110px; max-width:720px; margin:0 auto}
+  .prov{margin-top:22px}
+  .prov-head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+  .dot{width:14px; height:14px; border-radius:50%}
+  .prov h2{margin:0; font-size:19px}
+  .prov .count{color:var(--muted); font-size:13px}
+  .row{display:flex; justify-content:space-between; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 15px; margin-bottom:8px}
+  .paket{font-size:16.5px; font-weight:650; line-height:1.3}
+  .meta{color:var(--muted); font-size:13px; margin-top:2px}
+  .note{color:var(--accent); font-size:12.5px; margin-top:2px}
+  .harga{font-size:18px; font-weight:800; color:var(--accent); white-space:nowrap}
+  .pergb{display:block; font-size:11.5px; color:var(--muted); font-weight:500; text-align:right; margin-top:2px}
+  .rowbtns{display:none; gap:6px; margin-top:8px}
+  body.editing .rowbtns{display:flex}
+  .rowbtns button{padding:8px 12px; border-radius:9px; border:1px solid var(--line); font-size:13.5px; font-weight:700; cursor:pointer; background:var(--card2); color:var(--text)}
+  .rowbtns .del{color:var(--danger)}
+  .addwrap{display:none; margin-top:18px}
+  body.editing .addwrap{display:block}
+  .addwrap button{width:100%; padding:15px; border-radius:14px; border:2px dashed var(--accent); background:transparent; color:var(--accent); font-size:16px; font-weight:800; cursor:pointer}
+  .resetwrap{display:none; margin-top:10px; text-align:center}
+  body.editing .resetwrap{display:block}
+  .resetwrap button{background:none; border:none; color:var(--danger); font-size:13.5px; text-decoration:underline; cursor:pointer; padding:8px}
+  .empty{text-align:center; color:var(--muted); padding:40px 0; font-size:15px}
+  footer{position:fixed; left:0; right:0; bottom:0; background:var(--foot); border-top:1px solid var(--line); padding:10px 16px; font-size:12.5px; color:var(--muted); text-align:center; backdrop-filter:blur(6px)}
+  /* Modal edit */
+  .overlay{display:none; position:fixed; inset:0; background:rgba(10,8,20,.62); z-index:50; padding:18px; overflow-y:auto}
+  .overlay.open{display:block}
+  .modal{background:var(--modal); border:1px solid var(--line); border-radius:18px; max-width:520px; margin:24px auto; padding:20px}
+  .modal h3{margin:0 0 14px; font-size:19px}
+  .modal label{display:block; font-size:13.5px; color:var(--muted); margin:12px 0 5px; font-weight:600}
+  .modal input, .modal select{width:100%; padding:12px 13px; border-radius:11px; border:1px solid var(--line); background:var(--card); color:var(--text); font-size:16px; outline:none; user-select:text; -webkit-user-select:text}
+  .modal input:focus, .modal select:focus{border-color:var(--accent)}
+  .modal .dua{display:flex; gap:10px}
+  .modal .dua > div{flex:1}
+  .modalbtns{display:flex; gap:10px; margin-top:20px}
+  .modalbtns button{flex:1; padding:13px; border-radius:12px; border:1.5px solid var(--line); font-size:15.5px; font-weight:800; cursor:pointer}
+  .btn-save{background:var(--accent); color:#241703; border-color:var(--accent)}
+  html[data-theme="pastel"] .btn-save{color:#fff8ee}
+  .btn-batal{background:var(--card); color:var(--text)}
+  .simpan-info{font-size:12.5px; color:var(--muted); margin-top:10px; text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <div class="toprow">
+    <div>
+      <h1>📶 Daftar Harga <span class="em">Kuota</span></h1>
+      <div class="sub">Harga jual warung · Diperbarui terakhir: <b id="tgl">11 November 2026</b></div>
+    </div>
+    <button class="iconbtn" id="btnTema" title="Ganti tema terang pastel / gelap">🌤️</button>
+  </div>
+  <div class="toolbar">
+    <button id="btnEdit">✏️ Mode Edit Data</button>
+  </div>
+  <div class="search">
+    <input id="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Cari paket… mis. 5GB, 7 hari, Axis" autocomplete="off" autocapitalize="none">
+    <select id="sort">
+      <option value="default">Urutan daftar</option>
+      <option value="murah">Harga termurah</option>
+      <option value="pergb">Termurah per GB</option>
+      <option value="besar">Kuota terbesar</option>
+    </select>
+  </div>
+</header>
+<nav class="chips" id="chips"></nav>
+<main id="main"></main>
+<div style="max-width:720px;margin:0 auto;padding:0 16px">
+  <div class="addwrap"><button id="btnTambah">＋ Tambah Paket Baru</button></div>
+  <div class="resetwrap"><button id="btnReset">↩ Kembalikan semua ke daftar awal (foto 11 Nov 2026)</button></div>
+</div>
+<footer>Total <span id="total"></span> paket · Ketuk provider untuk menyaring · Perubahan di Mode Edit tersimpan otomatis di HP ini</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalJudul">Edit Paket</h3>
+    <label>Provider</label>
+    <select id="fProv">
+      <option>Telkomsel</option><option>Smartfren</option><option>Tri</option><option>Axis</option><option>Indosat</option>
+    </select>
+    <label>Nama paket (tulis seperti di daftar, mis. “5GB + Bonus”)</label>
+    <input id="fNama" type="text" placeholder="mis. 5GB" autocomplete="off">
+    <div class="dua">
+      <div><label>Kuota (GB) — boleh koma, mis. 2,5</label><input id="fGb" type="text" inputmode="decimal" placeholder="mis. 5"></div>
+      <div><label>Masa aktif (hari) — kosongkan bila tidak ada</label><input id="fHari" type="text" inputmode="numeric" placeholder="mis. 7"></div>
+    </div>
+    <label>Harga jual (Rp) — angka saja</label>
+    <input id="fHarga" type="text" inputmode="numeric" placeholder="mis. 28000">
+    <label>Catatan (boleh kosong)</label>
+    <input id="fNote" type="text" placeholder="mis. harga promo" autocomplete="off">
+    <div class="modalbtns">
+      <button class="btn-batal" id="btnBatal">Batal</button>
+      <button class="btn-save" id="btnSimpan">💾 Simpan</button>
+    </div>
+    <div class="simpan-info">Tersimpan di penyimpanan HP ini (bukan di berkas). Buka berkas ini dari tempat yang sama agar editanmu tetap ada.</div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_DATA = [
+  {p:"Telkomsel", nama:"1GB", hari:3, harga:13000, gb:1},
+  {p:"Telkomsel", nama:"2,5GB", hari:5, harga:17000, gb:2.5},
+  {p:"Telkomsel", nama:"5GB", hari:5, harga:30000, gb:5},
+  {p:"Telkomsel", nama:"3GB", hari:7, harga:22000, gb:3},
+  {p:"Telkomsel", nama:"5GB", hari:7, harga:28000, gb:5},
+  {p:"Telkomsel", nama:"7GB", hari:7, harga:31000, gb:7},
+  {p:"Smartfren", nama:"1GB · Mini Data", hari:3, harga:12000, gb:1},
+  {p:"Smartfren", nama:"2GB · Mini Data", hari:3, harga:14000, gb:2},
+  {p:"Smartfren", nama:"4GB · Mini Data", hari:5, harga:18000, gb:4},
+  {p:"Smartfren", nama:"7,5GB · Mini Data", hari:14, harga:25000, gb:7.5, note:"Di daftar tertulis coretan: masa aktif 14 hari (semula 5 hari)"},
+  {p:"Tri", nama:"1GB", hari:7, harga:10000, gb:1},
+  {p:"Tri", nama:"1,5GB", hari:7, harga:14000, gb:1.5},
+  {p:"Tri", nama:"2GB", hari:7, harga:16000, gb:2},
+  {p:"Tri", nama:"2,5GB", hari:14, harga:20000, gb:2.5},
+  {p:"Tri", nama:"4GB", hari:14, harga:27000, gb:4},
+  {p:"Axis", nama:"8GB", hari:1, harga:11000, gb:8},
+  {p:"Axis", nama:"5GB + Bonus", hari:2, harga:14000, gb:5},
+  {p:"Axis", nama:"3GB + Bonus", hari:3, harga:16000, gb:3},
+  {p:"Axis", nama:"4GB", hari:5, harga:18000, gb:4},
+  {p:"Axis", nama:"5GB + Bonus", hari:5, harga:20000, gb:5},
+  {p:"Axis", nama:"6GB + Bonus", hari:7, harga:24000, gb:6},
+  {p:"Indosat", nama:"Voucher 5GB", hari:1, harga:12000, gb:5},
+  {p:"Indosat", nama:"Voucher 6GB", hari:2, harga:17000, gb:6, note:"Harga coretan tangan di daftar: 17rb (semula 15rb)"},
+  {p:"Indosat", nama:"2,5GB", hari:5, harga:18000, gb:2.5, note:"Harga coretan tangan di daftar: 18rb (semula 17rb)"},
+  {p:"Indosat", nama:"7GB", hari:14, harga:29000, gb:7},
+  {p:"Indosat", nama:"3GB", hari:28, harga:34000, gb:3},
+  {p:"Indosat", nama:"7GB", hari:28, harga:37000, gb:7},
+  {p:"Indosat", nama:"9GB", hari:28, harga:40000, gb:9},
+  {p:"Indosat", nama:"13GB", hari:28, harga:50000, gb:13},
+  {p:"Indosat", nama:"Unlimited 1GB + 4,5GB App", hari:30, harga:40000, gb:5.5},
+  {p:"Indosat", nama:"Unlimited 2GB + 7,5GB App", hari:null, harga:60000, gb:9.5, note:"Masa aktif tidak tertulis di daftar foto"},
+  {p:"Indosat", nama:"Paket SMS — isi 400 SMS", hari:null, harga:10000, gb:null, note:"Paket SMS, bukan kuota data"},
+];
+const COLORS = {Telkomsel:"#e4002b", Smartfren:"#ed1c6f", Tri:"#8dc63f", Axis:"#00a9ce", Indosat:"#e6b800"};
+const ORDER = ["Telkomsel","Smartfren","Tri","Axis","Indosat"];
+const K_DATA="kuota-data-v2", K_TGL="kuota-tgl-v2", K_TEMA="kuota-tema-v2";
+const BULAN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const rp = n => "Rp" + Number(n).toLocaleString("id-ID");
+let data, activeProv="Semua", editing=false, editIdx=-1;
+
+try{ data = JSON.parse(localStorage.getItem(K_DATA)) || structuredClone(DEFAULT_DATA); }catch(e){ data = structuredClone(DEFAULT_DATA); }
+document.getElementById("tgl").textContent = localStorage.getItem(K_TGL) || "11 November 2026";
+if(localStorage.getItem(K_TEMA)==="pastel"){ document.documentElement.dataset.theme="pastel"; }
+
+function simpan(){
+  localStorage.setItem(K_DATA, JSON.stringify(data));
+  const d=new Date(), tgl=d.getDate()+" "+BULAN[d.getMonth()]+" "+d.getFullYear();
+  localStorage.setItem(K_TGL, tgl);
+  document.getElementById("tgl").textContent = tgl;
+}
+document.getElementById("btnTema").onclick = ()=>{
+  const h=document.documentElement;
+  h.dataset.theme = h.dataset.theme==="pastel" ? "gelap" : "pastel";
+  localStorage.setItem(K_TEMA, h.dataset.theme);
+};
+const btnEdit=document.getElementById("btnEdit");
+btnEdit.onclick=()=>{
+  editing=!editing;
+  document.body.classList.toggle("editing", editing);
+  btnEdit.classList.toggle("on", editing);
+  btnEdit.textContent = editing ? "✔ Selesai Edit" : "✏️ Mode Edit Data";
+  render();
+};
+const chipsEl=document.getElementById("chips");
+function bangunChips(){
+  chipsEl.innerHTML="";
+  ["Semua",...ORDER].forEach(name=>{
+    const b=document.createElement("button");
+    b.className="chip"+(name===activeProv?" active":"");
+    b.textContent=name;
+    b.onclick=()=>{activeProv=name; bangunChips(); render();};
+    chipsEl.appendChild(b);
+  });
+}
+document.getElementById("q").addEventListener("input", render);
+document.getElementById("sort").addEventListener("change", render);
+
+function render(){
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  const sort=document.getElementById("sort").value;
+  document.getElementById("total").textContent=data.length;
+  let items=data.map((d,i)=>({...d,_i:i})).filter(d=>{
+    if(activeProv!=="Semua" && d.p!==activeProv) return false;
+    if(!q) return true;
+    const hay=(d.p+" "+d.nama+" "+(d.hari?d.hari+" hari":"")+" "+d.harga).toLowerCase();
+    return q.split(/\s+/).every(w=>hay.includes(w));
+  });
+  if(sort==="murah") items.sort((a,b)=>a.harga-b.harga);
+  if(sort==="besar") items.sort((a,b)=>(b.gb||0)-(a.gb||0));
+  if(sort==="pergb") items.sort((a,b)=>((a.gb?a.harga/a.gb:1e12)-(b.gb?b.harga/b.gb:1e12)));
+  const main=document.getElementById("main");
+  if(!items.length){ main.innerHTML='<div class="empty">Tidak ada paket yang cocok. Coba kata lain ya.</div>'; return; }
+  const groups = sort==="default" ? ORDER : [null];
+  main.innerHTML=groups.map(g=>{
+    const rows=g ? items.filter(d=>d.p===g) : items;
+    if(!rows.length) return "";
+    const head=g ? `<div class="prov-head"><span class="dot" style="background:${COLORS[g]||'#888'}"></span><h2>${g}</h2><span class="count">${rows.length} paket</span></div>` : "";
+    return `<section class="prov">${head}`+rows.map(d=>`
+      <div class="row">
+        <div style="flex:1;min-width:0">
+          <div class="paket">${sort!=="default" && !g ? d.p+" · ":""}${d.nama}</div>
+          <div class="meta">${d.hari?("Masa aktif "+d.hari+" hari"):"Masa aktif —"}</div>
+          ${d.note?`<div class="note">✎ ${d.note}</div>`:""}
+          <div class="rowbtns">
+            <button onclick="bukaEdit(${d._i})">✏️ Edit</button>
+            <button class="del" onclick="hapusPaket(${d._i})">🗑️ Hapus</button>
+          </div>
+        </div>
+        <div><span class="harga">${rp(d.harga)}</span>${d.gb?`<span class="pergb">±${rp(Math.round(d.harga/d.gb))}/GB</span>`:""}</div>
+      </div>`).join("")+`</section>`;
+  }).join("");
+}
+/* ==== Edit / Tambah / Hapus ==== */
+const overlay=document.getElementById("overlay");
+const $=id=>document.getElementById(id);
+function bukaEdit(i){
+  editIdx=i;
+  const d=data[i];
+  $("modalJudul").textContent="Edit Paket — "+d.p;
+  $("fProv").value=d.p; $("fNama").value=d.nama;
+  $("fGb").value=d.gb==null?"":String(d.gb).replace(".",",");
+  $("fHari").value=d.hari==null?"":d.hari;
+  $("fHarga").value=d.harga; $("fNote").value=d.note||"";
+  overlay.classList.add("open");
+}
+$("btnTambah").onclick=()=>{
+  editIdx=-1;
+  $("modalJudul").textContent="Tambah Paket Baru";
+  $("fProv").value=activeProv!=="Semua"?activeProv:"Telkomsel";
+  $("fNama").value=""; $("fGb").value=""; $("fHari").value=""; $("fHarga").value=""; $("fNote").value="";
+  overlay.classList.add("open");
+  setTimeout(()=>$("fNama").focus(),80);
+};
+$("btnBatal").onclick=()=>overlay.classList.remove("open");
+overlay.addEventListener("click",e=>{ if(e.target===overlay) overlay.classList.remove("open"); });
+$("btnSimpan").onclick=()=>{
+  const nama=$("fNama").value.trim();
+  const harga=parseInt(($("fHarga").value||"").replace(/[^\d]/g,""),10);
+  if(!nama){ alert("Nama paket belum diisi."); return; }
+  if(!harga || harga<=0){ alert("Harga belum benar — isi angka saja, mis. 28000."); return; }
+  const gbRaw=$("fGb").value.trim().replace(",",".");
+  const gb=gbRaw===""?null:parseFloat(gbRaw);
+  const hariRaw=$("fHari").value.trim();
+  const hari=hariRaw===""?null:parseInt(hariRaw,10);
+  const obj={p:$("fProv").value, nama, hari:isNaN(hari)?null:hari, harga, gb:isNaN(gb)?null:gb};
+  const note=$("fNote").value.trim(); if(note) obj.note=note;
+  if(editIdx>=0) data[editIdx]=obj; else data.push(obj);
+  simpan(); overlay.classList.remove("open"); render();
+};
+function hapusPaket(i){
+  const d=data[i];
+  if(confirm("Hapus paket ini?\n\n"+d.p+" · "+d.nama+" — "+rp(d.harga))){ data.splice(i,1); simpan(); render(); }
+}
+$("btnReset").onclick=()=>{
+  if(confirm("Kembalikan SEMUA data ke daftar awal dari foto 11 Nov 2026?\n\nSemua editanmu akan hilang.")){
+    data=structuredClone(DEFAULT_DATA); simpan(); render();
+  }
+};
+bangunChips(); render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
